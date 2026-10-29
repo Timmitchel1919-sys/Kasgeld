@@ -1,0 +1,59 @@
+{
+  "version": 1,
+  "project": {
+    "name": "kasgeld-applicatie",
+    "productType": "private group finance PWA",
+    "stack": [
+      "react",
+      "vite"
+    ]
+  },
+  "sources": {
+    "tokens": [],
+    "components": [],
+    "assets": [],
+    "instructions": []
+  },
+  "design": {
+    "colorMode": "light",
+    "colors": {},
+    "typography": {},
+    "spacing": {},
+    "radius": {},
+    "shadows": {},
+    "motion": {},
+    "density": "compact"
+  },
+  "components": {
+    "installed": [],
+    "preferredPrimitives": [],
+    "patterns": []
+  },
+  "constraints": {
+    "must": [
+      "Use the supplied gold coin logo for product branding",
+      "Keep the blue sidebar collapsible to a logo-only rail",
+      "Keep wheel labels radial and readable inside each segment"
+    ],
+    "avoid": [
+      "Do not restore a separate application topbar",
+      "Do not rely on client-only concurrency controls for spinning"
+    ]
+  },
+  "decisions": [
+    "The authenticated application uses a full-height collapsible sidebar without a topbar.",
+    "The supplied glossy blue artwork is the installable PWA icon.",
+    "A server-side four-second group lease serializes wheel spins."
+  ],
+  "evidence": [
+    {
+      "fact": "project.stack:react",
+      "source": "package.json"
+    },
+    {
+      "fact": "project.stack:vite",
+      "source": "package.json"
+    }
+  ],
+  "generatedAt": "2026-10-29T20:45:26.261Z"
+}

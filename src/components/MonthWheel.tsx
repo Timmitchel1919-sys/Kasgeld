@@ -26,7 +26,8 @@ export function MonthWheel({ rotation, spinning, selectedMonth, selectedName, on
         <div className={`wheel ${spinning ? 'spinning' : ''}`} style={{ transform: `rotate(${rotation}deg)`, '--wheel-rotation': `${rotation}deg` } as React.CSSProperties}>
           {months.map((month, index) => {
             const angle = index * 30 + 15
-            return <span className={`month-label month-${index}`} style={{ '--angle': `${angle}deg` } as React.CSSProperties} key={month}>{month === selectedMonth ? <><LockKeyhole size={14} />{month}<small>{selectedName}</small></> : month}</span>
+            const labelAngle = angle > 90 && angle < 270 ? 180 : 0
+            return <span className={`month-label month-${index}`} style={{ '--angle': `${angle}deg`, '--label-angle': `${labelAngle}deg` } as React.CSSProperties} key={month}>{month === selectedMonth ? <><LockKeyhole size={14} />{month}<small>{selectedName}</small></> : month}</span>
           })}
         </div>
         <button className="spin-button" onClick={onSpin} disabled={spinning || !canSpin}>

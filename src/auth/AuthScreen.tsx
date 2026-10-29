@@ -2,6 +2,7 @@ import { FormEvent, useState } from 'react'
 import { KeyRound, LockKeyhole, Mail, UserRound } from 'lucide-react'
 import { readableFirebaseError } from '../firebase/errors'
 import { registerWithEmail, signInWithEmail, signInWithGoogle } from '../firebase/auth'
+import { Logo } from '../components/Header'
 
 function GoogleMark() {
   return <svg className="google-mark" viewBox="0 0 24 24" aria-hidden="true">
@@ -53,7 +54,7 @@ export function AuthScreen({ initialMode = 'login', onBack }: { initialMode?: 'l
 
   return <main className="auth-shell">
     <section className="auth-card">
-      <div className="auth-brand"><div className="coin-logo" aria-hidden="true"><span>€</span><i>€</i><b>€</b></div><div><h1>Kasgeld Applicatie</h1><p>Samen eerlijk. Samen transparant.</p></div></div>
+      <div className="auth-brand"><Logo /><div><h1>Kasgeld Applicatie</h1><p>Samen eerlijk. Samen transparant.</p></div></div>
       {onBack ? <button className="auth-back" type="button" onClick={onBack}>← Terug naar home</button> : null}
       <div className="auth-tabs"><button className={mode === 'login' ? 'active' : ''} onClick={() => setMode('login')}>Inloggen</button><button className={mode === 'register' ? 'active' : ''} onClick={() => setMode('register')}>Registreren</button></div>
       <button className="google-auth-button" type="button" onClick={googleSignIn} disabled={busy}><GoogleMark />Doorgaan met Google</button>

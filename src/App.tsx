@@ -3,7 +3,6 @@ import { useAuth } from './auth/AuthContext'
 import { ActivityPanel } from './components/ActivityPanel'
 import { AdminCenter } from './components/AdminCenter'
 import { AddParticipantModal } from './components/AddParticipantModal'
-import { Header } from './components/Header'
 import { GroupBar } from './components/GroupBar'
 import { CyclePanel } from './components/CyclePanel'
 import { MonthOverview } from './components/MonthOverview'
@@ -20,6 +19,7 @@ import { enablePushNotifications, updateWhatsAppConsent } from './firebase/messa
 import { createSpinIdempotencyKey, spinMonthAssignment } from './firebase/spinMonth'
 import { createKasgeldGroup, joinKasgeldGroup, subscribeUserGroups, updateParticipantAccess, type GroupSummary } from './firebase/groupsRealtime'
 import { subscribeAdminData, type InvitationRecord, type OutboxRecord } from './firebase/adminRealtime'
+import { cancelNotification, retryNotification, revokeInvitation } from './firebase/adminOperations'
 import { confirmPayout, downloadGroupExport, saveCycleSettings, transferOwnership, type CycleSettings } from './firebase/cycle'
 import type { Activity, Participant } from './types'
 
@@ -38,7 +38,7 @@ export default function App() {
   const [rotation, setRotation] = useState(0)
   const [spinning, setSpinning] = useState(false)
   const [modalOpen, setModalOpen] = useState(false)
-  const [menuOpen, setMenuOpen] = useState(false)
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(() => localStorage.getItem('kasgeld-sidebar-collapsed') === 'true' || (window.matchMedia?.('(max-width: 760px)').matches ?? false))
   const [profileOpen, setProfileOpen] = useState(false)
   const [dataLoading, setDataLoading] = useState(configured)
   const [dataError, setDataError] = useState('')
@@ -58,6 +58,7 @@ export default function App() {
   const displayName = user?.displayName || currentParticipant?.name || 'Deelnemer'
 
   useEffect(() => { if (!configured) localStorage.setItem('kasgeld-participants', JSON.stringify(participants)) }, [configured, participants])
+  useEffect(() => localStorage.setItem('kasgeld-sidebar-collapsed', String(sidebarCollapsed)), [sidebarCollapsed])
   useEffect(() => {
     if (configured || !user?.email || participants.some(person => person.email?.toLowerCase() === user.email?.toLowerCase())) return
     const name = user.displayName?.trim() || user.email.split('@')[0]
@@ -249,9 +250,8 @@ export default function App() {
     try { await transferOwnership(activeGroupId, participantId) } catch (error) { setDataError(errorMessage(error)) }
   }
 
-  return <div className="app-shell">
-    <Header onMenuToggle={() => setMenuOpen(value => !value)} />
-    <Sidebar active={active} isAdmin={isAdmin} open={menuOpen} profileOpen={profileOpen} displayName={displayName} email={email} phone={currentParticipant?.phone || ''} whatsappOptIn={currentParticipant?.whatsappOptIn === true} onNavigate={setActive} onClose={() => setMenuOpen(false)} onProfileToggle={() => setProfileOpen(value => !value)} onSignOut={() => void signOut()} onSavePhone={phone => void savePhone(phone)} onEnablePush={() => void enablePush()} onToggleWhatsApp={enabled => void toggleWhatsApp(enabled)} />
+  return <div className={`app-shell ${sidebarCollapsed ? 'sidebar-is-collapsed' : ''}`}>
+    <Sidebar active={active} isAdmin={isAdmin} collapsed={sidebarCollapsed} profileOpen={profileOpen} displayName={displayName} email={email} phone={currentParticipant?.phone || ''} whatsappOptIn={currentParticipant?.whatsappOptIn === true} onNavigate={setActive} onToggle={() => { setProfileOpen(false); setSidebarCollapsed(value => !value) }} onProfileToggle={() => setProfileOpen(value => !value)} onSignOut={() => void signOut()} onSavePhone={phone => void savePhone(phone)} onEnablePush={() => void enablePush()} onToggleWhatsApp={enabled => void toggleWhatsApp(enabled)} />
     <main className="app-content">
       {configured ? <GroupBar groups={groups} activeGroupId={activeGroupId} onSelect={setActiveGroupId} onCreate={name => void createGroup(name)} onJoin={code => void joinGroup(code)} /> : null}
       {dataLoading ? <div className="data-status" role="status">Groepsgegevens laden…</div> : null}
@@ -263,7 +263,7 @@ export default function App() {
         if (!configured) { setNotifications(value => !value); return }
         setDataError('')
         void updateNotificationsOnServer(activeGroupId, !notifications).catch(error => setDataError(errorMessage(error)))
-      }} /><CyclePanel settings={cycleSettings} participants={participants} isOwner={activeGroup?.role === 'owner'} onSave={settings => void saveCycle(settings)} onTransfer={id => void transferGroup(id)} onExport={() => void downloadGroupExport(activeGroupId).catch(error => setDataError(errorMessage(error)))} /><AdminCenter invitations={invitationRecords} outbox={outboxRecords} /></> : null}
+      }} /><CyclePanel settings={cycleSettings} participants={participants} isOwner={activeGroup?.role === 'owner'} onSave={settings => void saveCycle(settings)} onTransfer={id => void transferGroup(id)} onExport={() => void downloadGroupExport(activeGroupId).catch(error => setDataError(errorMessage(error)))} /><AdminCenter invitations={invitationRecords} outbox={outboxRecords} onRevokeInvitation={id => void revokeInvitation(activeGroupId, id).catch(error => setDataError(errorMessage(error)))} onRetryNotification={id => void retryNotification(activeGroupId, id).catch(error => setDataError(errorMessage(error)))} onCancelNotification={id => void cancelNotification(activeGroupId, id).catch(error => setDataError(errorMessage(error)))} /></> : null}
     </main>
     <AddParticipantModal open={modalOpen && isAdmin} onClose={() => setModalOpen(false)} onSubmit={addParticipant} />
   </div>

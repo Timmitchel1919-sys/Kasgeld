@@ -10,6 +10,7 @@
   "background_color": "#edf6ff",
   "theme_color": "#0755a8",
   "icons": [
-    { "src": "/kasgeld-icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+    { "src": "/kasgeld-app-icon.png", "sizes": "1250x1250", "type": "image/png", "purpose": "any" },
+    { "src": "/kasgeld-app-icon.png", "sizes": "1250x1250", "type": "image/png", "purpose": "maskable" }
   ]
 }

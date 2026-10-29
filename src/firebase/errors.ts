@@ -17,6 +17,7 @@ const messages: Record<string, string> = {
   'functions/invalid-argument': 'De aanvraag bevat ongeldige gegevens.',
   'functions/not-found': 'De gevraagde groep, deelnemer of maand bestaat niet.',
   'functions/failed-precondition': 'Deze actie kan in de huidige toestand niet worden uitgevoerd.',
+  'functions/resource-exhausted': 'Een andere deelnemer draait nu. Wacht enkele seconden en probeer opnieuw.',
   'functions/internal': 'De serveractie kon niet veilig worden afgerond. Probeer opnieuw.',
 }
 export function readableFirebaseError(error: unknown): string {

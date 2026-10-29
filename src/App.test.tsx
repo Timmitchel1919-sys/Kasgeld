@@ -67,4 +67,13 @@ describe('Kasgeld dashboard', () => {
     expect(screen.getByLabelText('Mijn profiel')).toHaveTextContent('sheq97@gmail.com')
     expect(screen.getByRole('button', { name: 'Uitloggen' })).toBeInTheDocument()
   })
+
+  it('klapt de sidebar in en opent hem opnieuw via het logo', () => {
+    renderApp()
+    const sidebar = screen.getByRole('complementary')
+    fireEvent.click(screen.getByRole('button', { name: 'Sidebar inklappen' }))
+    expect(sidebar).toHaveClass('collapsed')
+    fireEvent.click(screen.getByRole('button', { name: 'Sidebar openen' }))
+    expect(sidebar).not.toHaveClass('collapsed')
+  })
 })

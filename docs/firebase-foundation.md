@@ -50,6 +50,7 @@ De callable Cloud Function `spinMonth` voert de maandloting uit binnen een Fires
 5. Een maand kiezen met cryptografisch sterke willekeur.
 6. Toewijzing, deelnemerupdate en auditactiviteit atomair schrijven.
 7. Een idempotency key afdwingen om dubbele spins te blokkeren en veilige retries hetzelfde resultaat te laten teruggeven.
+8. Een korte groepsbrede spinlease vastleggen, zodat nooit twee deelnemers tegelijk aan het rad kunnen draaien.
 
 De webclient bevat een typed callable-adapter en optionele reCAPTCHA Enterprise App Check-initialisatie. App Check-enforcement mag pas worden geactiveerd nadat de site key en geldige-requestmetrics zijn gecontroleerd.
 
@@ -96,6 +97,14 @@ Elke mutatie schrijft ook een server-side auditactiviteit. De browser gebruikt t
 - Deze statussen zijn onafhankelijk, realtime zichtbaar en auditbaar.
 - Eigendomsoverdracht wijzigt alle autorisatierecords atomair en maakt de oude eigenaar beheerder.
 - De JSON-export is begrensd tot de groep, deelnemers, maanden en maximaal 200 recente activiteiten.
+
+## Beheerherstel en operationele status
+
+- Actieve uitnodigingen kunnen server-side worden ingetrokken; de publieke groepsregistratie en geheime codepointer worden atomair geblokkeerd.
+- Alleen mislukte of provider-geblokkeerde outboxrecords kunnen opnieuw worden aangeboden. De oorspronkelijke regel blijft behouden als auditspoor.
+- Niet-verzonden outboxrecords kunnen worden geannuleerd; verzonden records zijn onveranderlijk.
+- Het beheercentrum toont actieve uitnodigingen, verzonden berichten en records die aandacht vereisen.
+- Autorisatie en mutatie vinden binnen dezelfde Firestore-transactie plaats om rolwijzigings-races te blokkeren.
 
 ## Validatiegrens
 

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { chooseMonth, MONTHS, parseSpinInput } from './domain.js'
+import { chooseMonth, hasActiveSpinLock, MONTHS, parseSpinInput } from './domain.js'
 
 describe('spinMonth domain', () => {
   it('accepteert een begrensde geldige aanvraag', () => {
@@ -24,5 +24,11 @@ describe('spinMonth domain', () => {
   it('weigert een lege maandpool en een ongeldige random index', () => {
     expect(() => chooseMonth([])).toThrow('no-months-available')
     expect(() => chooseMonth(MONTHS, () => MONTHS.length)).toThrow('invalid-random-index')
+  })
+
+  it('blokkeert een tweede spin zolang de groepslease actief is', () => {
+    expect(hasActiveSpinLock(4_000, 3_999)).toBe(true)
+    expect(hasActiveSpinLock(4_000, 4_000)).toBe(false)
+    expect(hasActiveSpinLock(undefined, 4_000)).toBe(false)
   })
 })

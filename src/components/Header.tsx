@@ -3,7 +3,7 @@ import { Menu } from 'lucide-react'
 type HeaderProps = { onMenuToggle: () => void }
 
 export function Logo() {
-  return <div className="coin-logo" aria-hidden="true"><span>€</span><i>€</i><b>€</b></div>
+  return <img className="kasgeld-logo" src="/kasgeld-logo.png" alt="" aria-hidden="true" />
 }
 
 export function Header({ onMenuToggle }: HeaderProps) {

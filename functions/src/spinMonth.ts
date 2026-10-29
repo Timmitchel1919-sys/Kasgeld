@@ -1,8 +1,8 @@
 import { getApps, initializeApp } from 'firebase-admin/app'
-import { FieldValue, getFirestore } from 'firebase-admin/firestore'
+import { FieldValue, getFirestore, Timestamp } from 'firebase-admin/firestore'
 import { logger } from 'firebase-functions'
 import { HttpsError, onCall } from 'firebase-functions/v2/https'
-import { chooseMonth, MONTHS, parseSpinInput } from './domain.js'
+import { chooseMonth, hasActiveSpinLock, MONTHS, parseSpinInput } from './domain.js'
 
 if (getApps().length === 0) initializeApp()
 
@@ -69,6 +69,12 @@ export const spinMonth = onCall(
           }
         }
 
+        const nowMillis = Date.now()
+        const spinLockedUntil = groupSnapshot.get('spinLockedUntil') as Timestamp | undefined
+        if (hasActiveSpinLock(spinLockedUntil?.toMillis(), nowMillis)) {
+          throw new HttpsError('resource-exhausted', 'Een andere deelnemer draait nu. Wacht enkele seconden en probeer opnieuw.')
+        }
+
         if (!participantSnapshot.exists) throw new HttpsError('not-found', 'Deelnemer bestaat niet.')
         if (participantSnapshot.get('status') !== 'registered') throw new HttpsError('failed-precondition', 'De deelnemer is niet actief geregistreerd.')
         if (participantSnapshot.get('assignedMonth') != null) throw new HttpsError('failed-precondition', 'Deze deelnemer heeft al gedraaid.')
@@ -89,6 +95,7 @@ export const spinMonth = onCall(
           assignedAt: now,
           locked: true,
         })
+        transaction.update(groupRef, { spinLockedBy: uid, spinLockedUntil: Timestamp.fromMillis(nowMillis + 4000), updatedAt: now })
         transaction.update(participantRef, { assignedMonth: selectedMonth.label, updatedAt: now })
         transaction.create(activityRef, {
           type: 'month_assigned',

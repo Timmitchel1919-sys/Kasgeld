@@ -39,3 +39,7 @@ export function chooseMonth<T>(available: readonly T[], chooser: (max: number) =
   if (!Number.isInteger(index) || index < 0 || index >= available.length) throw new Error('invalid-random-index')
   return available[index] as T
 }
+
+export function hasActiveSpinLock(lockUntilMillis: number | null | undefined, nowMillis: number): boolean {
+  return Number.isFinite(lockUntilMillis) && Number(lockUntilMillis) > nowMillis
+}
