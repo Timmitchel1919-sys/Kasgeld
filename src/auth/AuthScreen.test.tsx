@@ -20,6 +20,7 @@ describe('AuthScreen', () => {
     await waitFor(() => expect(signInWithGoogle).toHaveBeenCalledTimes(1))
 
     fireEvent.click(screen.getByRole('button', { name: 'Registreren' }))
+    fireEvent.change(screen.getByLabelText('Uitnodigingscode'), { target: { value: 'ABCD-EFGH-IJKL' } })
     fireEvent.click(googleButton)
     await waitFor(() => expect(signInWithGoogle).toHaveBeenCalledTimes(2))
   })

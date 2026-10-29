@@ -18,7 +18,7 @@ export async function spinMonthAssignment(groupId: string, participantId: string
   const callable = httpsCallable<
     { groupId: string; participantId: string; idempotencyKey: string },
     SpinMonthResult
-  >(requireFunctions(), 'spinMonth')
+  >(requireFunctions(), 'spinMonthV2')
   const response = await callable({ groupId, participantId, idempotencyKey })
   return response.data
 }

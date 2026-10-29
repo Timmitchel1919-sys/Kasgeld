@@ -44,7 +44,7 @@ Kasgeld helpt kleine, besloten groepen van vrienden en collega's de twaalf kalen
 
 ## Open productbesluiten
 
-- Wie is bevoegd om een onjuiste maandtoewijzing administratief terug te draaien?
-- Wordt het daadwerkelijke kasgeldbedrag later per maand of per deelnemer vastgelegd?
+- De eigenaar en beheerder mogen een onjuiste maandtoewijzing terugdraaien; iedere wijziging wordt gelogd.
+- Het afgesproken maandbedrag wordt per groepsronde in eurocenten vastgelegd. Kasgeld verwerkt zelf geen betaling.
 - Welke provider wordt gebruikt voor WhatsApp en sms?
-- Welke groepsrol mag deelnemers verwijderen en wat gebeurt er met hun historische toewijzingen?
+- De eigenaar mag deelnemers deactiveren. Historie blijft behouden en een toegewezen maand moet eerst worden ontgrendeld.

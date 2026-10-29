@@ -31,6 +31,7 @@ export type GroupMemberDocument = {
 
 export type ParticipantDocument = {
   name: string
+  email: string
   phone: string
   status: ParticipantStatus
   assignedMonth: string | null

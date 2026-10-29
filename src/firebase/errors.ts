@@ -12,6 +12,12 @@ const messages: Record<string, string> = {
   'auth/cancelled-popup-request': 'Er is al een Google-aanmelding actief.',
   'auth/account-exists-with-different-credential': 'Dit e-mailadres bestaat al met een andere inlogmethode.',
   'permission-denied': 'Je hebt geen toestemming voor deze actie.',
+  'functions/permission-denied': 'Je hebt geen toestemming voor deze beheeractie.',
+  'functions/unauthenticated': 'Log opnieuw in om verder te gaan.',
+  'functions/invalid-argument': 'De aanvraag bevat ongeldige gegevens.',
+  'functions/not-found': 'De gevraagde groep, deelnemer of maand bestaat niet.',
+  'functions/failed-precondition': 'Deze actie kan in de huidige toestand niet worden uitgevoerd.',
+  'functions/internal': 'De serveractie kon niet veilig worden afgerond. Probeer opnieuw.',
 }
 export function readableFirebaseError(error: unknown): string {
   if (error instanceof FirebaseError) return messages[error.code] || `Firebase-fout: ${error.code}`

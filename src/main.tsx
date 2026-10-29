@@ -4,6 +4,9 @@ import App from './App'
 import { AuthProvider } from './auth/AuthContext'
 import { AuthGate } from './auth/AuthGate'
 import './styles.css'
+import { registerPwa } from './pwa'
+
+registerPwa()
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>

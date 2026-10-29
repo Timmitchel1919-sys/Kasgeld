@@ -6,7 +6,7 @@ import { chooseMonth, MONTHS, parseSpinInput } from './domain.js'
 
 if (getApps().length === 0) initializeApp()
 
-const db = getFirestore()
+const db = getFirestore('kasgeld')
 const enforceAppCheck = process.env.ENFORCE_APP_CHECK === 'true'
 
 type SpinResult = {
@@ -20,7 +20,7 @@ type SpinResult = {
 
 export const spinMonth = onCall(
   {
-    region: 'us-east1',
+    region: 'southamerica-east1',
     memory: '256MiB',
     timeoutSeconds: 30,
     maxInstances: 10,

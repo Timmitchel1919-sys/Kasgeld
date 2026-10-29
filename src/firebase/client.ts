@@ -22,8 +22,8 @@ let functions: Functions | null = null
 if (isFirebaseConfigured) {
   app = getApps().length ? getApp() : initializeApp(firebaseConfig)
   auth = getAuth(app)
-  db = getFirestore(app)
-  functions = getFunctions(app, 'us-east1')
+  db = getFirestore(app, 'kasgeld')
+  functions = getFunctions(app, 'southamerica-east1')
 
   const appCheckSiteKey = import.meta.env.VITE_RECAPTCHA_ENTERPRISE_SITE_KEY
   if (appCheckSiteKey) {
@@ -39,6 +39,8 @@ if (isFirebaseConfigured) {
     connectFunctionsEmulator(functions, '127.0.0.1', 5001)
   }
 }
+
+export const firebaseApp = app
 
 export function requireAuth(): Auth {
   if (!auth) throw new Error('Firebase Auth is niet geconfigureerd.')

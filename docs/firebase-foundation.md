@@ -4,6 +4,8 @@
 
 - Firebase-project: `kasgeld-1ac28`
 - Webapp: `Kasgeld`
+- Firestore-database: `kasgeld` (benoemde database, dus niet `(default)`).
+- Firestore- en Functions-regio: `southamerica-east1`.
 - De publieke webconfiguratie staat uitsluitend in `.env.local`; het bestand is uitgesloten van Git.
 
 ## Authenticatie
@@ -23,15 +25,18 @@ groups/{groupId}/members/{uid}
 groups/{groupId}/participants/{participantId}
 groups/{groupId}/months/{monthId}
 groups/{groupId}/activities/{activityId}
+userGroups/{uid}/groups/{groupId}
+invitationCodes/{codeHash}
 ```
 
 ## Beveiligingsgrenzen
 
 - Groepsgegevens zijn alleen leesbaar voor actieve groepsleden.
-- Groepsinstellingen zijn alleen wijzigbaar door eigenaar of beheerder.
-- Deelnemers kunnen alleen door geverifieerde groepsleden worden geregistreerd.
-- Een deelnemer kan zijn toegewezen maand niet via een clientupdate wijzigen.
+- Groepen, leden, deelnemers en instellingen zijn volledig gesloten voor clientwrites en worden uitsluitend via Cloud Functions beheerd.
+- Deelnemers worden bij een geverifieerde registratie server-side aan de vaste groep toegevoegd.
+- Een deelnemer kan zijn toegewezen maand nooit via een clientupdate wijzigen.
 - Maandtoewijzingen en auditactiviteiten zijn volledig gesloten voor clientwrites.
+- Het activiteitenlogboek is alleen leesbaar voor eigenaar of beheerder; gewone deelnemers zien uitsluitend hun functionele groepsgegevens.
 - Deletes zijn in deze laag standaard geblokkeerd om historische integriteit te bewaren.
 
 ## Server-side lotingslaag
@@ -52,15 +57,57 @@ De huidige projectparameter is daarom expliciet `ENFORCE_APP_CHECK=false`. Dit i
 
 WhatsApp en sms horen achter een afzonderlijke scheduled Function met providersecret in Secret Manager. Providercredentials mogen nooit naar de browserbundle.
 
+## Server-side beheerlaag
+
+Vier afzonderlijke callable Functions voeren beheeracties atomair uit en controleren bij iedere aanvraag e-mailverificatie, actief lidmaatschap en de rol `owner` of `admin`:
+
+- `assignMonth`: wijst een maand handmatig toe en ruilt bestaande toewijzingen veilig om.
+- `unlockMonth`: verwijdert de maandtoewijzing en maakt de deelnemer opnieuw beschikbaar.
+- `resetWheel`: verwijdert alle maanddocumenten en wist alle deelnemertoewijzingen in een transactie.
+- `updateGroupSettings`: bewaart de instelling voor automatische meldingen.
+
+Elke mutatie schrijft ook een server-side auditactiviteit. De browser gebruikt typed callable-adapters en wacht op de realtime Firestore-listeners als bron van waarheid.
+
+## Besloten toegang en deelnemersprofiel
+
+- Nieuwe niet-adminaccounts hebben een eenmalige uitnodigingscode nodig; codes verlopen na zeven dagen.
+- Alleen de codehash wordt opgeslagen. De ruwe code wordt alleen direct na generatie getoond.
+- Uitnodigingen worden atomair geconsumeerd tijdens server-side provisioning.
+- Iedere deelnemer kan alleen zijn eigen mobiele nummer via `updateOwnPhone` wijzigen.
+- Het nummer wordt server-side genormaliseerd en gecontroleerd op internationaal formaat.
+
+## Reminder-outbox
+
+`prepareMonthlyReminders` draait op de zesde om 09:00 in `America/Cayenne`. De Function selecteert deelnemers van de vorige kalendermaand en maakt per periode en deelnemer maximaal één outboxrecord. Zolang geen provider is geconfigureerd blijft de status `pending_provider`; dit is voorbereiding, geen verzendbevestiging.
+
+## Multi-group en deelnemerslevenscyclus
+
+- Een gebruiker kan via `userGroups/{uid}/groups` meerdere actieve groepen veilig wisselen.
+- `createGroup` maakt groep, eigenaar, deelnemer, auditactiviteit en gebruikersindex atomair aan.
+- `joinGroup` consumeert een eenmalige uitnodiging en schrijft alle lidmaatschapsrecords in één transactie.
+- Alleen de eigenaar kan een lid promoveren tot beheerder, degraderen of deactiveren.
+- Deactiveren met een toegewezen maand is fail-closed totdat de maand is ontgrendeld.
+- Uitnodigingen en notification-outbox zijn realtime zichtbaar in het beheercentrum.
+
+## Ronde en uitbetalingsbevestiging
+
+- Groepsafspraken bewaren kalenderjaar, maandbijdrage in eurocenten en uitbetalingsdag.
+- Beheer markeert een maand als uitbetaald; alleen de toegewezen deelnemer bevestigt ontvangst.
+- Deze statussen zijn onafhankelijk, realtime zichtbaar en auditbaar.
+- Eigendomsoverdracht wijzigt alle autorisatierecords atomair en maakt de oude eigenaar beheerder.
+- De JSON-export is begrensd tot de groep, deelnemers, maanden en maximaal 200 recente activiteiten.
+
 ## Validatiegrens
 
 - Firebase `--dry-run`: Rules compileren succesvol tegen project `kasgeld-1ac28`; niets gedeployed.
-- UI-tests: 4/4 geslaagd.
+- UI-tests: 8/8 geslaagd.
 - Productiebuild: geslaagd.
 - Npm-audit na de grpc-override: 0 kwetsbaarheden.
-- Firestore-emulator kon in Codex Desktop niet starten door Java `Unable to establish loopback connection`; de Rules-testcode bestaat, maar de vijf emulatorcases zijn daarom nog niet runtime-geverifieerd.
-- Functiondomeintests: 8/8 geslaagd.
+- Firestore Rules compileren zonder waarschuwingen via de officiële Firebase Rules API tegen project `kasgeld-1ac28`.
+- Firestore-emulator start lokaal niet op JDK 21 door `Unable to establish loopback connection`. Twee JDK 17-installatieroutes konden in deze omgeving niet worden gedownload; de acht emulatorcases zijn daarom nog niet runtime-geverifieerd.
+- Functiondomeintests: 12/12 geslaagd.
 - Functions TypeScript-build: geslaagd.
-- Firebase Functions dry-run: geslaagd; `spinMonth` is ontdekt en verpakt, niets gedeployed.
+- Firebase Functions dry-run: geslaagd; alle callables en `prepareMonthlyReminders` zijn ontdekt en verpakt, niets gedeployed.
+- De Cloud Scheduler API is tijdens de dry-run succesvol geactiveerd.
 - Frontend- en Functions-productieafhankelijkheden: beide 0 bekende npm-kwetsbaarheden.
 - Tijdens Functions dry-run zijn de vereiste Google Cloud API's voor Functions/Run/Eventarc en Firebase Extensions geactiveerd op het project. Er is geen Function of applicatiecode gepubliceerd.

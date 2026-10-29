@@ -40,4 +40,4 @@ npm run test:rules:emulator
 
 ## Productiegrens
 
-Firebase Auth, het Firestore-contract, de Security Rules en de server-side maandloting zijn aanwezig. De huidige dashboardrecords gebruiken nog de bestaande lokale frontendstate. De volgende laag moet het dashboard via realtime Firestore-repositories aan groepen, deelnemers, maanden en activiteiten koppelen. WhatsApp-/sms-verzending blijft buiten de browser en vereist een scheduled Function plus gekozen provider.
+Firebase Auth, de benoemde Firestore-database `kasgeld` in `southamerica-east1`, realtime repositories, gesloten uitnodigingen, server-side maandbeheer, profielupdates, Security Rules en de reminder-outbox zijn aanwezig. Echte WhatsApp-/sms-verzending blijft buiten de browser en vereist nog een gekozen provider, geldige opt-in, Secret Manager-configuratie en delivery-webhooks.

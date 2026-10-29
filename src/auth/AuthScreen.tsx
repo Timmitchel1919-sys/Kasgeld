@@ -1,5 +1,5 @@
 import { FormEvent, useState } from 'react'
-import { LockKeyhole, Mail, UserRound } from 'lucide-react'
+import { KeyRound, LockKeyhole, Mail, UserRound } from 'lucide-react'
 import { readableFirebaseError } from '../firebase/errors'
 import { registerWithEmail, signInWithEmail, signInWithGoogle } from '../firebase/auth'
 
@@ -12,11 +12,12 @@ function GoogleMark() {
   </svg>
 }
 
-export function AuthScreen() {
-  const [mode, setMode] = useState<'login' | 'register'>('login')
+export function AuthScreen({ initialMode = 'login', onBack }: { initialMode?: 'login' | 'register'; onBack?: () => void }) {
+  const [mode, setMode] = useState<'login' | 'register'>(initialMode)
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [inviteCode, setInviteCode] = useState('')
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
   const [notice, setNotice] = useState('')
@@ -28,6 +29,8 @@ export function AuthScreen() {
       if (mode === 'register') {
         if (name.trim().length < 2) throw new Error('Vul je volledige naam in.')
         if (password.length < 12) throw new Error('Gebruik een wachtwoord van minimaal twaalf tekens.')
+        if (!inviteCode.trim()) throw new Error('Een uitnodigingscode van de administrator is verplicht.')
+        localStorage.setItem('kasgeld-invite-code', inviteCode.trim())
         await registerWithEmail(email.trim(), password, name.trim())
         setNotice('Account aangemaakt. Controleer je e-mail om je account te verifiëren.')
       } else {
@@ -39,7 +42,11 @@ export function AuthScreen() {
 
   const googleSignIn = async () => {
     setError(''); setNotice(''); setBusy(true)
-    try { await signInWithGoogle() }
+    try {
+      if (mode === 'register' && !inviteCode.trim()) throw new Error('Een uitnodigingscode van de administrator is verplicht.')
+      if (inviteCode.trim()) localStorage.setItem('kasgeld-invite-code', inviteCode.trim())
+      await signInWithGoogle()
+    }
     catch (caught) { setError(readableFirebaseError(caught)) }
     finally { setBusy(false) }
   }
@@ -47,11 +54,13 @@ export function AuthScreen() {
   return <main className="auth-shell">
     <section className="auth-card">
       <div className="auth-brand"><div className="coin-logo" aria-hidden="true"><span>€</span><i>€</i><b>€</b></div><div><h1>Kasgeld Applicatie</h1><p>Samen eerlijk. Samen transparant.</p></div></div>
+      {onBack ? <button className="auth-back" type="button" onClick={onBack}>← Terug naar home</button> : null}
       <div className="auth-tabs"><button className={mode === 'login' ? 'active' : ''} onClick={() => setMode('login')}>Inloggen</button><button className={mode === 'register' ? 'active' : ''} onClick={() => setMode('register')}>Registreren</button></div>
       <button className="google-auth-button" type="button" onClick={googleSignIn} disabled={busy}><GoogleMark />Doorgaan met Google</button>
       <div className="auth-divider"><span>of ga verder met e-mail</span></div>
       <form onSubmit={submit}>
         {mode === 'register' && <label><span>Naam</span><div><UserRound /><input value={name} onChange={e => setName(e.target.value)} autoComplete="name" required /></div></label>}
+        <label><span>Uitnodigingscode {mode === 'login' ? '(alleen bij eerste toegang)' : ''}</span><div><KeyRound /><input value={inviteCode} onChange={e => setInviteCode(e.target.value.toUpperCase())} autoComplete="one-time-code" required={mode === 'register'} placeholder="ABCD-EFGH-IJKL" /></div></label>
         <label><span>E-mailadres</span><div><Mail /><input type="email" value={email} onChange={e => setEmail(e.target.value)} autoComplete="email" required /></div></label>
         <label><span>Wachtwoord</span><div><LockKeyhole /><input type="password" value={password} onChange={e => setPassword(e.target.value)} autoComplete={mode === 'login' ? 'current-password' : 'new-password'} required /></div></label>
         {error && <p className="auth-message error" role="alert">{error}</p>}
