@@ -177,7 +177,6 @@ td { padding: 7px 10px; border-bottom: 1px solid #e8eef4; white-space: nowrap; }
 }
 
 /* collapsible sidebar and supplied Kasgeld brand assets */
-.kasgeld-logo { width: 62px; height: 62px; object-fit: contain; display: block; }
 .app-shell { padding: 0 0 0 238px; transition: padding-left .22s ease; }
 .app-shell.sidebar-is-collapsed { padding-left: 76px; }
 .app-content { min-height: 100vh; }
@@ -186,6 +185,7 @@ td { padding: 7px 10px; border-bottom: 1px solid #e8eef4; white-space: nowrap; }
 .sidebar-brand > h1 { margin: 0; font-size: 25px; white-space: nowrap; }
 .sidebar-logo-button,.sidebar-collapse { border: 0; color: #fff; background: transparent; display: grid; place-items: center; }
 .sidebar-logo-button { padding: 0; border-radius: 13px; }
+.sidebar-logo-button .coin-logo { transform: scale(.72); transform-origin: center; }
 .sidebar-logo-button:focus-visible,.sidebar-collapse:focus-visible { outline: 3px solid #fff; outline-offset: 2px; }
 .sidebar-collapse { width: 34px; height: 34px; border: 1px solid rgba(255,255,255,.25); border-radius: 9px; }
 .sidebar-collapse svg { width: 19px; }
@@ -195,9 +195,6 @@ td { padding: 7px 10px; border-bottom: 1px solid #e8eef4; white-space: nowrap; }
 .sidebar.collapsed .sidebar-brand > h1,.sidebar.collapsed .sidebar-collapse,.sidebar.collapsed nav,.sidebar.collapsed .sidebar-profile { display: none; }
 .month-label { --label-angle: 0deg; transform: translate(-50%,-50%) rotate(var(--angle)) translateY(-151px) rotate(var(--label-angle)); transform-origin: center; }
 .auth-brand { flex-direction: column; text-align: center; }
-.auth-brand .kasgeld-logo { width: 108px; height: 108px; margin-bottom: 2px; }
-.landing-brand .kasgeld-logo { width: 54px; height: 54px; }
-.landing-footer .kasgeld-logo { width: 48px; height: 48px; }
 
 @media (max-width: 760px) {
   .app-shell,.app-shell.sidebar-is-collapsed { padding: 0 0 0 76px; }
@@ -245,7 +242,7 @@ td { padding: 7px 10px; border-bottom: 1px solid #e8eef4; white-space: nowrap; }
   .topbar .mobile-menu { display: grid; grid-column: 3; color: #0875df; background: #eef6ff; border-color: #cfe2f5; }
   .sidebar { width: min(310px,86vw); }
   .profile-panel { position: static; margin-bottom: 10px; }
-  .month-label { transform: translate(-50%,-50%) rotate(var(--angle)) translateY(-120px) rotate(calc((var(--angle) + var(--wheel-rotation)) * -1)); }
+  .month-label { transform: translate(-50%,-50%) rotate(var(--angle)) translateY(-120px) rotate(var(--label-angle)); }
   .invitation-rule { grid-template-columns: 32px 1fr; }.invitation-rule .primary-button { grid-column: 1 / -1; width: 100%; }
   .group-bar { align-items: stretch; flex-direction: column; }.group-bar label,.group-bar select { width: 100%; }.group-bar-actions,.group-bar form { margin-left: 0; display: grid; grid-template-columns: 1fr 1fr; }.group-bar form input { grid-column: 1 / -1; }.admin-center { grid-template-columns: 1fr; }.operations-summary { grid-template-columns: 1fr; }.admin-list > div { flex-direction: column; }.admin-list span { text-align: left; }.outbox-actions { align-items: stretch; flex-direction: column; }
   .cycle-grid { grid-template-columns: 1fr; }.cycle-panel form { grid-template-columns: 1fr; }.cycle-panel .primary-button { grid-column: auto; }

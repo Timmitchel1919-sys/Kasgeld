@@ -1,5 +1,5 @@
-const CACHE_NAME = 'kasgeld-shell-v2'
-const APP_SHELL = ['/', '/manifest.webmanifest', '/kasgeld-logo.png', '/kasgeld-app-icon.png']
+const CACHE_NAME = 'kasgeld-shell-v3'
+const APP_SHELL = ['/', '/manifest.webmanifest', '/kasgeld-icon.svg']
 
 self.addEventListener('install', event => {
   event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(APP_SHELL)).then(() => self.skipWaiting()))
@@ -25,8 +25,8 @@ self.addEventListener('push', event => {
   const notification = payload.notification || payload.data?.notification || payload.data || {}
   event.waitUntil(self.registration.showNotification(notification.title || 'Kasgeld herinnering', {
     body: notification.body || 'Je hebt een nieuwe Kasgeld-melding.',
-    icon: '/kasgeld-app-icon.png',
-    badge: '/kasgeld-app-icon.png',
+    icon: '/kasgeld-icon.svg',
+    badge: '/kasgeld-icon.svg',
     data: { url: payload.fcmOptions?.link || payload.data?.link || '/' },
   }))
 })
